@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Synthé Santé</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #1a237e;
+            text-align: center;
+        }
+
+        .card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1e88e5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 1rem;
+        }
+
+        .button:hover {
+            background-color: #1565c0;
+        }
+
+        .switch {
+            margin-top: 10px;
+            color: #666;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Synthé Santé</h1>
+
+    <div id="form-container" class="card">
+        <h2>Se connecter</h2>
+        <input type="email" id="email" class="input" placeholder="Email">
+        <input type="password" id="password" class="input" placeholder="Mot de passe">
+        <button class="button" onclick="login()">Connexion</button>
+        <p class="switch" onclick="toggleForm()">Pas encore inscrit ? <strong>Créer un compte</strong></p>
+    </div>
+
+    <script>
+        let isLogin = true;
+
+        function toggleForm() {
+            const container = document.getElementById('form-container');
+            if (isLogin) {
+                container.innerHTML = `
+                    <h2>S'inscrire</h2>
+                    <input type="text" id="name" class="input" placeholder="Nom">
+                    <input type="email" id="email" class="input" placeholder="Email">
+                    <input type="password" id="password" class="input" placeholder="Mot de passe">
+                    <button class="button" onclick="register()">S'inscrire</button>
+                    <p class="switch" onclick="toggleForm()">Déjà inscrit ? <strong>Se connecter</strong></p>
+                `;
+            } else {
+                container.innerHTML = `
+                    <h2>Se connecter</h2>
+                    <input type="email" id="email" class="input" placeholder="Email">
+                    <input type="password" id="password" class="input" placeholder="Mot de passe">
+                    <button class="button" onclick="login()">Connexion</button>
+                    <p class="switch" onclick="toggleForm()">Pas encore inscrit ? <strong>Créer un compte</strong></p>
+                `;
+            }
+            isLogin = !isLogin;
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('auth.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+            });
+
+            if (response.redirected) {
+                // Si PHP redirige vers home.php, on suit cette redirection
+                window.location.href = response.url;
+            } else {
+                const result = await response.text();
+                alert(result); // Affiche l'erreur si la connexion a échoué
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('name')?.value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('auth.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `action=register&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+            });
+
+            const result = await response.text();
+            alert(result);
+        }
+    </script>
+
+</body>
+</html>
